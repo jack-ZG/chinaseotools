@@ -45,28 +45,15 @@ class website(object):
 	
 	def get_env(self):
 		"""
-		#target:获取网站的雨腥环境
+		#target:获取网站的服务器环境
 		#params:domain
 		#return:string env info
 		"""
 		url='http://'+self.domain
-		print(url)
 		me=requests.get(url)
-		print(me.headers["Server"])
-		return None
+		return me.headers["Server"]
 	
-	def get_tdk(self,url):
-		"""
-		#target:获取网页的TDK
-		#params:url
-		#return:dict tdk
-		"""
-		response=requests.get(url)
-		soup=BeautifulSoup(response.text,'lxml')
-		title=soup.title.string
-		keywords=soup.find_all('meta',attrs={'name':'keywords'})[0]['content'].split(',')
-		description=soup.find_all('meta',attrs={'name':'description'})[0]['content']
-		return {'title':title,'keywords':tuple(keywords),'description':description}
+
 	
 	def get_robots(self):
 		"""
@@ -80,10 +67,137 @@ class website(object):
 
 
 
+class htmlpage(object):
+	"""
+	to analyse a html page
+	"""
+	def __init__(self,url):
+		self.url=url
+		self.scheme=furl(self.url).scheme
+		self.host=furl(self.url).host
+		self.resp=requests.get(url)
+		self.soup=BeautifulSoup(self.resp.text,'lxml')
+
+	def reduce_noise(self):
+		"""
+		#target:页面基础降噪
+		"""
+		for style in self.soup.find_all('style'):
+			self.soup.style.decompose()
+		for script in self.soup.find_all("script"):
+			self.soup.script.decompose()
+		return self.soup
+
+
+	def get_url(self):
+		"""
+		#target:获取访问url
+		"""
+		return self.url
+		
+	def get_tdk(self):
+		"""
+		#target:获取网页的TDK
+		#params:soup
+		#return:dict tdk
+		"""
+		title=self.soup.title.string
+		keywords=self.soup.find_all('meta',attrs={'name':'keywords'})[0]['content'].split(',')
+		description=self.soup.find_all('meta',attrs={'name':'description'})[0]['content']
+		return {'title':title,'keywords':tuple(keywords),'description':description}
+
+	def get_content(self):
+		"""
+		target:获取页面内容 模仿百度抓取
+		params:soup
+		return:string conetent
+		"""
+		newsoup=self.reduce_noise()
+		content=newsoup.body.get_text().split()
+		return " ".join(content)
+
+	def get_all_urls(self):
+		"""
+		target:获取页面内的所有urls
+		"""
+		urls=[]
+		newsoup=getusefulsoup(self.soup)
+		for i in newsoup.find_all('a'):
+			urls.append(i.get("href"))
+		return urls
+		
+	def get_internal_urls(self):
+		"""
+		#target:获取页面内的站内链接
+
+		"""
+		urls=[]
+		for url in self.get_all_urls():
+			if furl(url).host in [None,self.host]:
+				urls.append(url)
+			else:
+				pass
+		return urls
+
+	def get_external_urls(self):
+		"""
+		#target:获取页面内的站外链接
+		"""
+		urls=[]
+		for url in self.get_all_urls():
+			if furl(url).host not in [None,self.host]:
+				urls.append(url)
+			else:
+				pass
+		return urls
+
+	def check_in_baidu(self):
+		"""
+		target:检查在baidu中是否收录
+		#如果被展现则返回1,否则返回0
+
+		"""
+		payload = {'wd': self.url}
+		headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3018.4 Safari/537.36'}
+		req=requests.get("https://www.baidu.com/s",params=payload,headers=headers)
+		info=self.url[7:]
+		soup=BeautifulSoup(req.text,'lxml')
+		s=soup.body.get_text()
+		if "没有找到该URL。您可以直接访问" in s:
+			return '没有收录'
+		elif "很抱歉，没有找到" in s:
+			return '没有收录'
+		else:
+			return '已经收录'
+
+
+	def check_in_so(self):
+		"""
+		target:检查在360中是否收录
+
+		"""
+		return None
+
+	def check_in_sogou(self):
+		"""
+		target:检查在sogou中是否收录
+
+		"""
+		return None
+
+	def get_words(self):
+		"""
+		target:获取中文分词
+		
+		"""
+		seg_list = jieba.cut(self.get_content(), cut_all=True)
+		print("Full Mode: " + "/".join(seg_list))
+		return None
+
 def main():
-	domain=sys.argv[1]
-	vrnew=website(domain)
-	print(vrnew.get_robots())
+	url="http://www.vrnew.com/index.php/News/newscontent/id/593.html"
+	vrnew=htmlpage(url)
+	print(vrnew.get_words())
 
 if __name__ == '__main__':
 	main()
