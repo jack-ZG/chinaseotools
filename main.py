@@ -67,14 +67,23 @@ class website(object):
 		keywords=soup.find_all('meta',attrs={'name':'keywords'})[0]['content'].split(',')
 		description=soup.find_all('meta',attrs={'name':'description'})[0]['content']
 		return {'title':title,'keywords':tuple(keywords),'description':description}
+	
+	def get_robots(self):
+		"""
+		#target:获取网页的robots
+		#params:url
+		#return:string robosts.txt
+		"""
+		url="http://"+"self.domain"+'robots.txt'
+		resp=requests.get(url)
+		return resp.text
+
 
 
 def main():
 	domain=sys.argv[1]
 	vrnew=website(domain)
-	print(vrnew.get_tdk("http://www.vrnew.com/index.php/Successcase/productcontent/id/35.html"))
-
-
+	print(vrnew.get_robots())
 
 if __name__ == '__main__':
 	main()
