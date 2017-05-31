@@ -11,6 +11,7 @@ class website(object):
 	"""
 	def __init__(self,domain):
 		self.domain=domain
+		self.index="http://"+self.domain #暂不支持https
 
 	def get_ip(self):
 		"""
@@ -65,7 +66,35 @@ class website(object):
 		resp=requests.get(url)
 		return resp.text
 
+	def get_num_baidu_included(self):
+		"""
+		#target:获取百度收录数 备案方名称
+		#params:
+		#return:
+		"""
+		num=0
+		return num
 
+	def get_num_so_included(self):
+		"""
+		#target:获取360收录数 备案号
+		#params:
+		#return:
+		"""
+		num=0
+		return num
+
+	def get_num_sogou_included(self):
+		"""
+		#target:获取sougou收录数
+		#params:
+		#return:
+		"""
+		num=0
+		return num
+	def get_all_urls(self):
+		urls=[]
+		return urls
 
 class htmlpage(object):
 	"""
@@ -195,9 +224,11 @@ class htmlpage(object):
 		return None
 
 def main():
-	url="http://www.vrnew.com/index.php/News/newscontent/id/593.html"
-	vrnew=htmlpage(url)
-	print(vrnew.get_words())
+	# url="http://www.vrnew.com/index.php/News/newscontent/id/593.html"
+	# vrnew=htmlpage(url)
+	# print(vrnew.get_words())
+	vrnew=website('www.vrnew.com')
+	print(vrnew.index)
 
 if __name__ == '__main__':
 	main()
