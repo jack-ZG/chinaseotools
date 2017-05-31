@@ -21,6 +21,13 @@ class baidu_url(object):
 		info={
 		"wd"="查询词汇",
 		"bs"="上一次查询的词",
+		"oq"="上一次查询的词",
+		"rn"="一页展现的条数",
+		"pn"="显示结果所在第几页",
+		"si"="限定在某网站内搜索",
+		"lm"="限定在多少天内搜索",
+		"ie"="关键字默认编码格式",
+		"rsv_bp"="使用的是百度哪一个搜索框0是首页输入；1是顶部搜索输入；2是底部搜索输入",
 		}
 		return None
 	def compare_params():
@@ -39,3 +46,4 @@ def main():
 	print(_123.params)
 if __name__ == '__main__':
 	main()
+
