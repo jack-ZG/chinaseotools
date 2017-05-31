@@ -197,6 +197,7 @@ class htmlpage(object):
 def main():
 	url="http://www.vrnew.com/index.php/News/newscontent/id/593.html"
 	vrnew=htmlpage(url)
+	print(vrnew.get_tdk())
 	print(vrnew.get_words())
 
 if __name__ == '__main__':
