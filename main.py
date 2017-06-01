@@ -1,13 +1,24 @@
 #!/usr/bin/python
 #codeing:utf-8
 
-import requests,time,sys,jieba,os,re,openpyxl,sqlite3,socket
+import sys
+import os
+import time
+import re
+import socket
+
+import requests
+import jieba
+import openpyxl
+import sqlite3 
+
+
 from bs4 import BeautifulSoup 
 from furl import furl
 
 class website(object):
 	"""
-	# to analyse website for seo rank
+	# 网站分析
 	"""
 	def __init__(self,domain):
 		self.domain=domain
@@ -223,19 +234,13 @@ class htmlpage(object):
 		print("Full Mode: " + "/".join(seg_list))
 		return None
 
+
 def main():
-<<<<<<< HEAD
-	url="http://www.vrnew.com/index.php/News/newscontent/id/593.html"
-	vrnew=htmlpage(url)
-	print(vrnew.get_tdk())
-	print(vrnew.get_words())
-=======
 	# url="http://www.vrnew.com/index.php/News/newscontent/id/593.html"
 	# vrnew=htmlpage(url)
 	# print(vrnew.get_words())
 	vrnew=website('www.vrnew.com')
 	print(vrnew.index)
->>>>>>> origin/master
 
 if __name__ == '__main__':
 	main()
