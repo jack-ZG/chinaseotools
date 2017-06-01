@@ -103,9 +103,37 @@ class website(object):
 		"""
 		num=0
 		return num
-	def get_all_urls(self):
+
+	def get_absolute_url(self,url):
+		"""
+		#target:得到绝对地址
+		"""
+		furl=(url)
+		return absurl
+
+	def get_urls(self):
+		index=htmlpage(self.index)
 		urls=[]
+		print(index.get_all_urls())
 		return urls
+
+	def create_file_sitemap(self):
+		"""
+		#生成网站地图
+		"""
+		return None
+	def create_file_404(self):
+		"""
+		#生产网站死链
+		"""
+		return None
+
+	def analyse_log(self):
+		"""
+		#日志分析
+		"""
+		return None
+
 
 class htmlpage(object):
 	"""
@@ -161,7 +189,7 @@ class htmlpage(object):
 		target:获取页面内的所有urls
 		"""
 		urls=[]
-		newsoup=getusefulsoup(self.soup)
+		newsoup=self.reduce_noise()
 		for i in newsoup.find_all('a'):
 			urls.append(i.get("href"))
 		return urls
@@ -240,7 +268,7 @@ def main():
 	# vrnew=htmlpage(url)
 	# print(vrnew.get_words())
 	vrnew=website('www.vrnew.com')
-	print(vrnew.index)
+	vrnew.get_urls()
 
 if __name__ == '__main__':
 	main()
