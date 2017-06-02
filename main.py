@@ -22,7 +22,9 @@ class website(object):
 	"""
 	def __init__(self,domain):
 		self.domain=domain
-		self.index="http://"+self.domain #暂不支持https
+		
+	def get_index(self):
+		return "http://"+self.domain #暂不支持https
 
 	def get_ip(self):
 		"""
@@ -108,14 +110,32 @@ class website(object):
 		"""
 		#target:得到绝对地址
 		"""
-		furl=(url)
-		return absurl
+		if 'javascript' in url :
+			pass
+		else:
+			f=furl(url)
+			if f.host :
+				return url
+			else:
+				return "http://"+self.domain+url
 
 	def get_urls(self):
-		index=htmlpage(self.index)
-		urls=[]
+		index=self.get_index()
+		needgraburls=[]
+		hadgraburls=[]
+		needgraburls.append(index)
+		while needgraburls:
+			grabingurl=self.get_absolute_url(needgraburls.pop()) #转换为绝对地址
+			if grabingurl:
+				if grabingurl in hadgraburls:
+					pass
+				else:
+					grabing=htmlpage(grabingurl)
+					needgraburls.extend(grabing.get_internal_urls()) #只抓取本站连接
+					hadgraburls.append(grabingurl)
+
 		print(index.get_all_urls())
-		return urls
+		return hadgraburls
 
 	def create_file_sitemap(self):
 		"""
@@ -268,6 +288,8 @@ def main():
 	# vrnew=htmlpage(url)
 	# print(vrnew.get_words())
 	vrnew=website('www.vrnew.com')
+	# m=vrnew.get_absolute_url("http://www.vrnew.com/index.php/Product/index.html")
+	# print(m)
 	vrnew.get_urls()
 
 if __name__ == '__main__':
