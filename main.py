@@ -9,6 +9,7 @@ import socket
 
 import requests
 import jieba
+import jieba.analyse
 import openpyxl
 import sqlite3 
 
@@ -120,6 +121,7 @@ class website(object):
 				return "http://"+self.domain+url
 
 	def get_urls(self):
+		""" 抓取网站所有连接"""
 		index=self.get_index()
 		needgraburls=[]
 		hadgraburls=[]
@@ -153,7 +155,21 @@ class website(object):
 		#日志分析
 		"""
 		return None
-
+	def check_friend(self):
+		"""
+		target:友情链接检测
+		params:index url
+		return None
+		"""
+		friend=htmlpage(self.get_index())
+		print(friend.get_external_urls())
+		for exurl in friend.get_external_urls():
+			exfriend=htmlpage(exurl)
+			if self.get_index() in exfriend.get_external_urls():
+				print("{} is a friend ".format(exurl))
+			else:
+				print("{} is not a friend ".format(exurl))
+		return None
 
 class htmlpage(object):
 	"""
@@ -161,20 +177,28 @@ class htmlpage(object):
 	"""
 	def __init__(self,url):
 		self.url=url
-		self.scheme=furl(self.url).scheme
-		self.host=furl(self.url).host
-		self.resp=requests.get(url)
-		self.soup=BeautifulSoup(self.resp.text,'lxml')
+
+	def get_scheme(self):
+		return furl(self.url).scheme
+
+	def get_host(self):
+		return furl(self.url).host
+
+	def get_resp(self):
+		return requests.get(self.url)
+
+	def get_soup(self):
+		return BeautifulSoup(self.get_resp().text,'lxml')
 
 	def reduce_noise(self):
 		"""
 		#target:页面基础降噪
 		"""
-		for style in self.soup.find_all('style'):
-			self.soup.style.decompose()
-		for script in self.soup.find_all("script"):
-			self.soup.script.decompose()
-		return self.soup
+		for style in self.get_soup().find_all('style'):
+			self.get_soup().style.decompose()
+		for script in self.get_soup().find_all("script"):
+			self.get_soup().script.decompose()
+		return self.get_soup()
 
 
 	def get_url(self):
@@ -189,9 +213,9 @@ class htmlpage(object):
 		#params:soup
 		#return:dict tdk
 		"""
-		title=self.soup.title.string
-		keywords=self.soup.find_all('meta',attrs={'name':'keywords'})[0]['content'].split(',')
-		description=self.soup.find_all('meta',attrs={'name':'description'})[0]['content']
+		title=self.get_soup().title.string
+		keywords=self.get_soup().find_all('meta',attrs={'name':'keywords'})[0]['content'].split(',')
+		description=self.get_soup().find_all('meta',attrs={'name':'description'})[0]['content']
 		return {'title':title,'keywords':tuple(keywords),'description':description}
 
 	def get_content(self):
@@ -221,7 +245,7 @@ class htmlpage(object):
 		"""
 		urls=[]
 		for url in self.get_all_urls():
-			if furl(url).host in [None,self.host]:
+			if furl(url).host in [None,self.get_host()]:
 				urls.append(url)
 			else:
 				pass
@@ -233,7 +257,7 @@ class htmlpage(object):
 		"""
 		urls=[]
 		for url in self.get_all_urls():
-			if furl(url).host not in [None,self.host]:
+			if furl(url).host not in [None,self.get_host()]:
 				urls.append(url)
 			else:
 				pass
@@ -275,22 +299,22 @@ class htmlpage(object):
 
 	def get_words(self):
 		"""
-		target:获取中文分词
+		target:获取正文中频率出现最高的几个词
 		
 		"""
-		seg_list = jieba.cut(self.get_content(), cut_all=True)
-		print("Full Mode: " + "/".join(seg_list))
+		tags = jieba.analyse.extract_tags(self.get_content(), topK=20)
+		print(",".join(tags))
 		return None
 
 
 def main():
 	# url="http://www.vrnew.com/index.php/News/newscontent/id/593.html"
 	# vrnew=htmlpage(url)
-	# print(vrnew.get_words())
+	# print(vrnew.get_tdk())
 	vrnew=website('www.vrnew.com')
 	# m=vrnew.get_absolute_url("http://www.vrnew.com/index.php/Product/index.html")
 	# print(m)
-	vrnew.get_urls()
+	vrnew.check_friend()
 
 if __name__ == '__main__':
 	main()
