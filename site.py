@@ -1,6 +1,8 @@
 #!/usr/bin/python
 #codeing:utf-8
 
+import page
+
 import sys
 import os
 import time
@@ -106,33 +108,14 @@ class website(object):
 		num=0
 		return num
 
-	def get_absolute_url(self,url):
-		"""
-		#target:得到绝对地址
-		"""
-		if 'javascript' in url :
-			pass
-		else:
-			f=furl(url)
-			if f.host :
-				return url
-			else:
-				return "http://"+self.domain+url
 
 	def get_urls(self):
-		""" 抓取网站所有连接"""
+		""" 抓取网站所有连接,并作相关记录
+		Example: {url:"http://www.vrnew.com " ,wordlist=[("首页",433),("vr",23),("Vr公司",20),("华锐视点",10),("北京虚拟现实",10),("虚拟现实公司",10),("北京华锐视点_VR虚拟现实/AR增强现实内容制作公司",1)]}
+		"""
+
 		index=self.get_index()
-		will_grab_urls=[]
-		had_grab_urls=[]
-		will_grab_urls.append(index)
-		while will_grab_urls:
-			grabing=self.get_absolute_url(will_grab_urls.pop())
-			if grabing in had_grab_urls:
-				pass
-			else:
-				grab=htmlpage(grabing)
-				will_grab_urls.extend(grab.get_internal_urls())
-				had_grab_urls.append(grabing)
+
 		return None
 
 
@@ -170,20 +153,10 @@ class website(object):
 
 
 def main():
-	url="http://www.vrnew.com/index.php/News/newscontent/id/593.html"
-	vrnew=htmlpage(url)
-	print(vrnew.get_scheme())
-	print(vrnew.get_host())
-	print(vrnew.get_resp())
-	# print(vrnew.get_soup())
-	# print(vrnew.get_tdk())
-	# print(vrnew.get_content())
+	vrnew=website('www.vrnew.com')
+	m=vrnew.get_absolute_url("http://www.vrnew.com/index.php/Product/index.html")
+	print(m)
 
-
-	# vrnew=website('www.vrnew.com')
-	# # m=vrnew.get_absolute_url("http://www.vrnew.com/index.php/Product/index.html")
-	# # print(m)
-	# vrnew.get_urls()
 
 if __name__ == '__main__':
 	main()

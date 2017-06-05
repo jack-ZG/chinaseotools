@@ -44,16 +44,24 @@ class htmlpage(object):
 		"""
 		return self.url
 		
-	def get_tdk(self):
+
+	def get_title(self):
 		"""
-		#target:获取网页的TDK
-		#params:soup
-		#return:dict tdk
+		target:获取网页标题
 		"""
-		title=self.get_soup().title.string
-		keywords=self.get_soup().find_all('meta',attrs={'name':'keywords'})[0]['content'].split(',')
-		description=self.get_soup().find_all('meta',attrs={'name':'description'})[0]['content']
-		return {'title':title,'keywords':tuple(keywords),'description':description}
+		return self.get_soup().title.string
+
+	def get_keywords(self):
+		"""
+		target:获取网关键词
+		"""
+		return self.get_soup().find_all('meta',attrs={'name':'keywords'})[0]['content'].split(',')
+
+	def get_description(self):
+		"""
+		target:获取网页描述
+		"""
+		return self.get_soup().find_all('meta',attrs={'name':'description'})[0]['content']
 
 	def get_content(self):
 		"""
@@ -118,7 +126,7 @@ class htmlpage(object):
 	def check_in_baidu(self):
 		"""
 		target:检查在baidu中是否收录
-		#如果被展现则返回1,否则返回0
+		#收录返回True,没有收录返回False
 
 		"""
 		payload = {'wd': self.url}
@@ -127,11 +135,11 @@ class htmlpage(object):
 		soup=BeautifulSoup(req.text,'lxml')
 		s=soup.body.get_text()
 		if "没有找到该URL。您可以直接访问" in s:
-			return '没有收录'
+			return False 
 		elif "很抱歉，没有找到" in s:
-			return '没有收录'
+			return False
 		else:
-			return '已经收录'
+			return True
 
 
 	def check_in_so(self):
