@@ -83,7 +83,11 @@ class htmlpage(object):
 		urls=[]
 		newsoup=self.reduce_noise()
 		for i in newsoup.find_all('a'):
-			urls.append({'url':self.url_re2abs(i.get("href")),'anchor':i.string})
+			if i.string:
+				anchor=i.string.strip()
+			else:
+				anchor=i.string
+			urls.append({'url':self.url_re2abs(i.get("href")),'anchor':anchor})
 		return urls
 		
 	def get_internal_urls(self):
@@ -168,7 +172,9 @@ class htmlpage(object):
 def main():
 	url="http://www.vrnew.com/index.php/News/newscontent/id/611.html"
 	vrnew=htmlpage(url)
-	print(vrnew.get_all_urls())
+	for i in vrnew.get_all_urls():
+		print(i['anchor'])
+		print(i['url'])
 
 
 

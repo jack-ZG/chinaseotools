@@ -10,7 +10,6 @@ import socket
 import requests
 import jieba
 import jieba.analyse
-import openpyxl
 import sqlite3 
 
 
