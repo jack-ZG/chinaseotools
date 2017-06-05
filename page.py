@@ -6,20 +6,23 @@ from furl import furl
 
 class htmlpage(object):
 	"""
-	to analyse a html page
+	taraget:单页面分析工具
 	"""
 	def __init__(self,url):
 		self.url=url
+		self.headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36"}
+
+	def get_furl(self):
+		return furl(self.url)
 
 	def get_scheme(self):
-		return furl(self.url).scheme
+		return self.get_furl().scheme
 
 	def get_host(self):
-		return furl(self.url).host
+		return self.get_furl().host
 
 	def get_resp(self):
-		headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36"}
-		return requests.get(self.url,headers=headers)
+		return requests.get(self.url,headers=self.headers)
 
 	def get_soup(self):
 		return BeautifulSoup(self.get_resp().text,'lxml')
@@ -62,6 +65,17 @@ class htmlpage(object):
 		content=newsoup.body.get_text().split()
 		return " ".join(content)
 
+	def url_re2abs(self,url):
+		"""相对连接->绝对连接"""
+		f=furl(url)
+		if f.host:
+			return url
+		else:
+			me=self.get_furl()
+			me.path=str(f.path)
+			return me.url
+
+
 	def get_all_urls(self):
 		"""
 		target:获取页面内的所有urls
@@ -69,12 +83,12 @@ class htmlpage(object):
 		urls=[]
 		newsoup=self.reduce_noise()
 		for i in newsoup.find_all('a'):
-			urls.append(i.get("href"))
+			urls.append({'url':self.url_re2abs(i.get("href")),'anchor':i.string})
 		return urls
 		
 	def get_internal_urls(self):
 		"""
-		#target:获取页面内的站内链接
+		#target:获取页面内的站内链接和锚文字
 
 		"""
 		urls=[]
@@ -104,8 +118,7 @@ class htmlpage(object):
 
 		"""
 		payload = {'wd': self.url}
-		headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3018.4 Safari/537.36'}
-		req=requests.get("https://www.baidu.com/s",params=payload,headers=headers)
+		req=requests.get("https://www.baidu.com/s",params=payload,headers=self.headers)
 		info=self.url[7:]
 		soup=BeautifulSoup(req.text,'lxml')
 		s=soup.body.get_text()
@@ -141,20 +154,21 @@ class htmlpage(object):
 		return None
 
 	def show(self):
-		print(self.get_url())	
-		print(self.get_scheme())
-		print(self.get_host())
-		# print(self.get_resp())
-		# print(self.get_soup())
-		# print(self.get_tdk())
-		print(self.get_content())
-		print(self.reduce_noise())
+		print("url:{}".format(self.get_url()))
+		print("title:{}".format(self.get_tdk()["title"]))
+		print("keywords:{}".format(self.get_tdk()["keywords"]))
+		print("description:{}".format(self.get_tdk()["description"]))
+		print("interlurl:{}".format(len(self.get_internal_urls())))
+		print("exterlurl:{}".format(len(self.get_external_urls())))
+		print(self.get_all_urls())
+		print(self.check_in_baidu())
+
 
 
 def main():
-	url="http://blog.csdn.net/appleheshuang/article/details/7602499"
+	url="http://www.vrnew.com/index.php/News/newscontent/id/611.html"
 	vrnew=htmlpage(url)
-	vrnew.show()
+	print(vrnew.get_all_urls())
 
 
 
