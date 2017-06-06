@@ -17,8 +17,9 @@ def baidu_index(word=" "):
 				domain=i.select(".c-showurl")[0].get_text().strip()
 			else:
 				domain=""
-			info.append({'id':i["id"],'srcid':i['srcid'],'domain':domain,'title':i.h3.get_text()})
+			info.append({'id':i["id"],'srcid':i['srcid'],'domain':domain,'title':i.h3.get_text(),'tpl':i['tpl'],'data-click':i['data-click']})
 		page+=10
+	print(info)
 	return info
 
 		
@@ -34,7 +35,7 @@ def get_index_baidu(*words):
 
 
 def main():
-	words=["vr新闻发展至今,还处于起步的阶段。"]
+	words=["vr"]
 	get_index_baidu(*words)
 
 
