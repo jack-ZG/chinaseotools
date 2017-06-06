@@ -44,7 +44,13 @@ seoer最基本的就是挖词，这些词怎么来？
 |-vr->眼镜->几十元\的\有\效果\吗                      
 |-vr->眼镜->能看\普通\岛国\片                  
 |-vr->眼镜->怎么\链接\电脑                                        
-|-vr->眼镜->视频\资源\岛国              				
+|-vr->眼镜->视频\资源\岛国       
+
+### 关键词排名定位 
+
+baidu_index("外卖")
+返回结果
+![](https://github.com/haizhilong/chinaseotools/blob/master/screenshot/TIM%E6%88%AA%E5%9B%BE20170606112641.png)
 
 ## site.py
 在这个包里，想实现对服务器数据的抽取，以及网站相关信息的调查，还有一些数据的统计分析                       
