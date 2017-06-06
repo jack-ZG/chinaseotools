@@ -10,16 +10,16 @@ def baidu_index(word=" "):
 	while page<=90:
 		payload = {'wd': word,'pn':page,'ie':"utf-8","tn":"baiduhome_pg"}
 		req=requests.get("https://www.baidu.com/s",params=payload,headers=headers)
-		print(req.url)
 		soup=BeautifulSoup(req.text,'lxml')
 		for i in soup.select(".c-container "):
 			if i.select(".c-showurl"):
 				domain=i.select(".c-showurl")[0].get_text().strip()
 			else:
 				domain=""
-			info.append({'id':i["id"],'srcid':i['srcid'],'domain':domain,'title':i.h3.get_text(),'tpl':i['tpl'],'data-click':i['data-click']})
+			info.append({'id':i["id"],'srcid':i['srcid'],'domain':domain,'title':i.h3.get_text().strip(),'tpl':i['tpl'],'data-click':i['data-click']})
 		page+=10
-	print(info)
+	for i in info:
+		print(i['tpl'])
 	return info
 
 		
