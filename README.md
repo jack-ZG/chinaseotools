@@ -46,8 +46,8 @@ seo的意思就是关键词排名优化，从而获取一定的流量，辅助�
 ### 搜索结果分析|竞争对手分析
 > 分析搜索结果参数
 ``` python
-> import word
-> word.baidu_index("seo",0)
+> import monitor
+> monitor.baidu_index("seo",0)
 >  [{'data-click': None,
   'domain': 'baike.baidu.com/',
   'id': '1',
@@ -58,8 +58,8 @@ seo的意思就是关键词排名优化，从而获取一定的流量，辅助�
 ### 关键词排名定位 
 > 监控优化关键词排名变化
 ``` python
->  import word
->  word.get_index_baidu("www.vrnew.com",*["华锐视点","vr","虚拟现实"])
+>  import monitor
+>  monitor.get_index_baidu("www.vrnew.com",*["华锐视点","vr","虚拟现实"])
 > 
  [{'rank': ['1', '66', '93'], 'word': '华锐视点'},
  {'rank': ['86'], 'word': 'vr'},
