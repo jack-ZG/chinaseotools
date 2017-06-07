@@ -62,7 +62,7 @@ seoer最基本的就是挖词，这些词怎么来？
   'tpl': 'bk_polysemy'},.....]
 ```
 ### 关键词排名定位 
-
+> 监控优化关键词排名变化
 ``` python
 >  import word
 >  word.get_index_baidu("www.vrnew.com",*["华锐视点","vr","虚拟现实"])
