@@ -15,6 +15,26 @@
 
 ## word.py
 
+# word.py简介
+` python
+  def get_index_baidu(site,*words):
+	"""
+	target:关键词排名监控
+	param:关键词列表
+	return:关键词位置定位信息[{"word":"",rank:[1,68,93,100]},]"""
+
+	ranklist=[]
+	for word in words:
+		rank=[]
+		for index in baidu_index(word):
+			if site in index['domain']:
+				rank.append(index['id'])
+			else:
+				pass
+		ranklist.append({"word":word,"rank":rank})
+	return ranklist
+`
+
 seoer最基本的就是挖词，这些词怎么来？
 1. 几家搜索引擎搜索结果相关搜索、SUG
 2. 几家大的社交、媒体（微博）的相关搜索
