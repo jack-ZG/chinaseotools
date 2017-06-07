@@ -16,7 +16,7 @@
 ## word.py
 
 # word.py简介
-` python
+``` python
   def get_index_baidu(site,*words):
 	"""
 	target:关键词排名监控
@@ -33,7 +33,7 @@
 				pass
 		ranklist.append({"word":word,"rank":rank})
 	return ranklist
-`
+```
 
 seoer最基本的就是挖词，这些词怎么来？
 1. 几家搜索引擎搜索结果相关搜索、SUG
