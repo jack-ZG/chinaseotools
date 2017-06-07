@@ -16,20 +16,7 @@
 ## word.py
 
 # word.py简介
-``` python
-> import word
-> word.baidu_index("seo",0)
->  [{'data-click': None,
-  'domain': 'baike.baidu.com/',
-  'id': '1',
-  'srcid': '91',
-  'title': 'SEO_百度百科',
-  'tpl': 'bk_polysemy'},.....]
->  word.get_index_baidu("www.vrnew.com",*["华锐视点","vr","虚拟现实"])
->  [{'rank': ['1', '66', '93'], 'word': '华锐视点'},
- {'rank': ['86'], 'word': 'vr'},
- {'rank': ['48'], 'word': '虚拟现实'}]
-```
+
 
 seoer最基本的就是挖词，这些词怎么来？
 1. 几家搜索引擎搜索结果相关搜索、SUG
@@ -60,13 +47,31 @@ seoer最基本的就是挖词，这些词怎么来？
 |-vr->眼镜->几十元\的\有\效果\吗                      
 |-vr->眼镜->能看\普通\岛国\片                  
 |-vr->眼镜->怎么\链接\电脑                                        
-|-vr->眼镜->视频\资源\岛国       
+|-vr->眼镜->视频\资源\岛国                 
 
+### 百度搜索结果分析
+> 分析搜索结果参数
+``` python
+> import word
+> word.baidu_index("seo",0)
+>  [{'data-click': None,
+  'domain': 'baike.baidu.com/',
+  'id': '1',
+  'srcid': '91',
+  'title': 'SEO_百度百科',
+  'tpl': 'bk_polysemy'},.....]
+```
 ### 关键词排名定位 
 
-baidu_index("外卖")
-返回结果
-![](https://github.com/haizhilong/chinaseotools/blob/master/screenshot/TIM%E6%88%AA%E5%9B%BE20170606112641.png)
+``` python
+>  import word
+>  word.get_index_baidu("www.vrnew.com",*["华锐视点","vr","虚拟现实"])
+> 
+ [{'rank': ['1', '66', '93'], 'word': '华锐视点'},
+ {'rank': ['86'], 'word': 'vr'},
+ {'rank': ['48'], 'word': '虚拟现实'}]
+```
+```
 
 ## site.py
 在这个包里，想实现对服务器数据的抽取，以及网站相关信息的调查，还有一些数据的统计分析                       
