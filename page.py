@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#codeing:utf-8
+#coding:utf-8
 import requests
 from bs4 import BeautifulSoup
 from furl import furl
@@ -22,8 +22,11 @@ class htmlpage(object):
 		return self.get_furl().host
 
 	def get_resp(self):
-		return requests.get(self.url,headers=self.headers)
-
+		try:
+			return requests.get(self.url,headers=self.headers)
+		except requests.exceptions.InvalidSchema:
+			print(self.url)
+		
 	def get_soup(self):
 		return BeautifulSoup(self.get_resp().text,'lxml')
 
@@ -105,7 +108,7 @@ class htmlpage(object):
 		"""
 		urls=[]
 		for url in self.get_all_urls():
-			if furl(url).host in [None,self.get_host()]:
+			if furl(url['url']).host in [None,self.get_host()]:
 				urls.append(url)
 			else:
 				pass
@@ -117,7 +120,7 @@ class htmlpage(object):
 		"""
 		urls=[]
 		for url in self.get_all_urls():
-			if furl(url).host not in [None,self.get_host()]:
+			if furl(url['url']).host not in [None,self.get_host()]:
 				urls.append(url)
 			else:
 				pass

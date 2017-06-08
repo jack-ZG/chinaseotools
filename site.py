@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #codeing:utf-8
 
-import page
+import page 
 
 import sys
 import os
@@ -18,7 +18,7 @@ import sqlite3
 from bs4 import BeautifulSoup 
 from furl import furl
 
-class website(object):
+class site(object):
 	"""
 	# 网站分析
 	"""
@@ -34,8 +34,7 @@ class website(object):
 		params:domain
 		return:string ip address
 		"""
-		ip=socket.getaddrinfo(self.domain,None)[0][4][0]
-		return ip
+		return socket.getaddrinfo(self.domain,None)[0][4][0]
 	
 	def get_whois(self):
 		"""
@@ -65,21 +64,19 @@ class website(object):
 		#params:domain
 		#return:string env info
 		"""
-		url='http://'+self.domain
-		me=requests.get(url)
-		return me.headers["Server"]
+		return requests.get(self.get_index()).headers["Server"]
 	
 
 	
-	def get_robots(self):
-		"""
-		#target:获取网页的robots
-		#params:url
-		#return:string robosts.txt
-		"""
-		url="http://"+"self.domain"+'robots.txt'
-		resp=requests.get(url)
-		return resp.text
+	# def get_robots(self):
+	# 	"""
+	# 	#target:获取网页的robots
+	# 	#params:url
+	# 	#return:string robosts.txt
+	# 	"""
+	# 	url="http://"+self.domain+'robots.txt'
+	# 	resp=requests.get(url)
+	# 	return resp.text
 
 	def get_num_baidu_included(self):
 		"""
@@ -111,14 +108,24 @@ class website(object):
 
 	def get_urls(self):
 		""" 抓取网站所有连接,并作相关记录
-		Example: {url:"http://www.vrnew.com " ,wordlist=[("首页",433),("vr",23),("Vr公司",20),("华锐视点",10),("北京虚拟现实",10),("虚拟现实公司",10),("北京华锐视点_VR虚拟现实/AR增强现实内容制作公司",1)]}
+		Example: [{'url':'http://www.vrnew.com','title':'首页','counts':100}
 		"""
-
-		index=self.get_index()
-
-		return None
-
-
+		info=[]
+		needgrab=[]
+		havegrab=[]
+		needgrab.append(self.get_index())
+		while needgrab:
+			grabing=needgrab.pop()
+			if grabing in havegrab:
+				pass
+			else:
+				print(grabing)
+				temp=page.htmlpage(grabing)
+				for url in temp.get_internal_urls():
+					needgrab.append(url['url'])
+					info.append({'url':grabing,'title':temp.get_title(),"urls":url})
+				havegrab.append(grabing)
+		return info
 
 	def create_file_sitemap(self):
 		"""
@@ -153,9 +160,13 @@ class website(object):
 
 
 def main():
-	vrnew=website('www.vrnew.com')
-	m=vrnew.get_absolute_url("http://www.vrnew.com/index.php/Product/index.html")
-	print(m)
+	vrnew=site("www.vrnew.com")
+	print(vrnew.get_urls())
+	# print(vrnew.get_index())
+	# print(vrnew.get_ip())
+	# print(vrnew.get_whois())
+	# print(vrnew.get_env())
+	# print(vrnew.get_robots())
 
 
 if __name__ == '__main__':

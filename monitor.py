@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#codeing:utf-8
+#coding:utf-8
 import re
 import requests
 from bs4 import BeautifulSoup
