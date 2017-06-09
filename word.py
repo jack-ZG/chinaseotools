@@ -30,7 +30,6 @@ def get_defaultwordlist():
 	return relwords
 
 def check_relationship(testword=None):
-	# print(testword)
 	score=0
 	for i in get_defaultwordlist():
 		if str(i[0]) in testword:
