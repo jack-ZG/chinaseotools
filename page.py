@@ -12,61 +12,69 @@ class htmlpage(object):
 		self.url=url
 		self.headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36"}
 
-	def get_furl(self):
+	@property
+	def furl(self):
 		return furl(self.url)
 
-	def get_scheme(self):
-		return self.get_furl().scheme
+	@property
+	def scheme(self):
+		return self.furl.scheme
 
-	def get_host(self):
-		return self.get_furl().host
+	@property
+	def host(self):
+		return self.furl.host
 
 	def get_resp(self):
 		try:
 			return requests.get(self.url,headers=self.headers)
 		except requests.exceptions.InvalidSchema:
 			print(self.url)
-		
-	def get_soup(self):
+
+	@property	
+	def soup(self):
 		return BeautifulSoup(self.get_resp().text,'lxml')
 
 	def reduce_noise(self):
 		"""
 		#target:页面基础降噪
 		"""
-		newsoup=self.get_soup()
+		newsoup=self.soup
 		for style in newsoup.find_all('style'):
 			newsoup.style.decompose()
 		for script in newsoup.find_all("script"):
 			newsoup.script.decompose()
 		return newsoup
 
-	def get_url(self):
-		"""
-		#target:获取访问url
-		"""
-		return self.url
-		
-
-	def get_title(self):
+	# @property
+	# def url(self):
+	# 	"""
+	# 	#target:获取访问url
+	# 	"""
+	# 	return self.url
+	
+	@property
+	def title(self):
 		"""
 		target:获取网页标题
 		"""
-		return self.get_soup().title.string
+		return self.soup.title.string
 
-	def get_keywords(self):
+	@property
+	def keywords(self):
 		"""
 		target:获取网关键词
 		"""
-		return self.get_soup().find_all('meta',attrs={'name':'keywords'})[0]['content'].split(',')
+		return self.soup.find_all('meta',attrs={'name':'keywords'})[0]['content'].split(',')
 
-	def get_description(self):
+	@property
+	def description(self):
 		"""
 		target:获取网页描述
 		"""
-		return self.get_soup().find_all('meta',attrs={'name':'description'})[0]['content']
+		return self.soup.find_all('meta',attrs={'name':'description'})[0]['content']
 
-	def get_content(self):
+	@property
+	def content(self):
 		"""
 		target:获取页面内容 模仿百度抓取
 		params:soup
@@ -82,12 +90,12 @@ class htmlpage(object):
 		if f.host:
 			return url
 		else:
-			me=self.get_furl()
+			me=self.furl
 			me.path=str(f.path)
 			return me.url
 
-
-	def get_all_urls(self):
+	@property
+	def allurls(self):
 		"""
 		target:获取页面内的所有urls
 		"""
@@ -100,27 +108,29 @@ class htmlpage(object):
 				anchor=i.string
 			urls.append({'url':self.url_re2abs(i.get("href")),'anchor':anchor})
 		return urls
-		
-	def get_internal_urls(self):
+
+	@property
+	def internal_urls(self):
 		"""
 		#target:获取页面内的站内链接和锚文字
 
 		"""
 		urls=[]
-		for url in self.get_all_urls():
-			if furl(url['url']).host in [None,self.get_host()]:
+		for url in self.allurls:
+			if furl(url['url']).host in [None,self.host]:
 				urls.append(url)
 			else:
 				pass
 		return urls
 
-	def get_external_urls(self):
+	@property
+	def external_urls(self):
 		"""
 		#target:获取页面内的站外链接
 		"""
 		urls=[]
-		for url in self.get_all_urls():
-			if furl(url['url']).host not in [None,self.get_host()]:
+		for url in self.allurls:
+			if furl(url['url']).host not in [None,self.host]:
 				urls.append(url)
 			else:
 				pass
@@ -183,9 +193,14 @@ class htmlpage(object):
 def main():
 	url="http://www.vrnew.com/index.php/News/newscontent/id/611.html"
 	vrnew=htmlpage(url)
-	for i in vrnew.get_all_urls():
-		print(i['anchor'])
-		print(i['url'])
+	# for i in vrnew.get_all_urls():
+	# 	print(i['anchor'])
+	# 	print(i['url'])
+	# print(vrnew.host)
+	# print(vrnew.title)
+	# print(vrnew.content)
+	# print(vrnew.allurls)
+	print(vrnew.external_urls)
 
 
 

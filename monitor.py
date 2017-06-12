@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 def baidu_index(word=" ",num=90):
 	"""
-	target:根据关键词，获取百度排名前100内容
+	target:根据关键词，默认获取百度排名前100内容
 	params:words是想要获取的关键词，num:0,10,20......90
 	return:list 信息列表
 	"""
