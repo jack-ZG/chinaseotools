@@ -45,12 +45,6 @@ class htmlpage(object):
 			newsoup.script.decompose()
 		return newsoup
 
-	# @property
-	# def url(self):
-	# 	"""
-	# 	#target:获取访问url
-	# 	"""
-	# 	return self.url
 	
 	@property
 	def title(self):
