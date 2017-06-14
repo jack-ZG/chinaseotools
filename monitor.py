@@ -4,13 +4,14 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
+headers={'Connection':"keep-alive","User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.7 Safari/537.36"}
+
 def baidu_index(word=" ",num=90):
 	"""
 	target:根据关键词，默认获取百度排名前100内容
 	params:words是想要获取的关键词，num:0,10,20......90
 	return:list 信息列表
 	"""
-	headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.7 Safari/537.36"}
 	info=[]
 	page=0
 	while page<=num:
@@ -22,12 +23,39 @@ def baidu_index(word=" ",num=90):
 				domain=i.select(".c-showurl")[0].get_text().strip()
 			else:
 				domain=""
-
 			info.append({'id':i["id"],'srcid':i['srcid'],'domain':domain,'title':i.h3.get_text().strip(),'tpl':i['tpl'],'data-click':eval(re.sub(r"\s","",str(i.h3.a.get("data-click"))))})
 		page+=10
 	return info
 
+def so_index(word="vr",page=""):
+	"""
+	target:
+	params:
+	return:
+	"""
+	info=[]
+	payload = {'q': word,'pn':page,'src':"srp_paging","fr":"none"}
+	req=requests.get("https://www.so.com/s",params=payload,headers=headers)
+	soup=BeautifulSoup(req.text,'lxml')
+	newsoup=soup.body
+	for style in newsoup.find_all("style"):
+		newsoup.style.decompose()
+	for script in newsoup.find_all("script"):
+		newsoup.script.decompose()
+	for i in newsoup.select('.result')[1]:
+		for s in i.select('h3 > a'):
+			print(s)
+			if 'data-res' in str(s):
+				print(s['data-res'])
+		info.append({'timte':i.select('h3')[0].get_text(),})
 
+
+def sogou_index(word="vr",page=""):
+		"""
+	target:
+	params:
+	return:
+	"""
 		
 def get_index_baidu(site,*words):
 	"""
@@ -46,13 +74,23 @@ def get_index_baidu(site,*words):
 		ranklist.append({"word":word,"rank":rank})
 	return ranklist
 		
+def get_words():
+	"""
+	target:获取需要监控的词
+	"""
+	monitor=[]
+	with open("vrnewwords.txt",'r',encoding="utf-8") as words:
+		for word in words.readlines():
+			if word.strip():
+				monitor.append(word.strip())
+			else:
+				pass
+	return monitor
 
 
 def main():
-	site="www.vrnew.com"
-	words=["华锐视点","vr","虚拟现实"]
-	for i in get_index_baidu(site,*words):
-		print(i)
+	print(so_index())
+
 
 
 if __name__ == '__main__':
