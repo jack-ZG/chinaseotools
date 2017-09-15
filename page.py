@@ -1,203 +1,150 @@
 #!/usr/bin/python
-#coding:utf-8
+#coding=utf-8
+
 import requests
 from bs4 import BeautifulSoup
 from furl import furl
 
-class htmlpage(object):
-	"""
-	taraget:单页面分析工具
-	"""
+
+class page(object):
+	'''单页面分析，出报告'''
 	def __init__(self,url):
 		self.url=url
-		self.headers={"User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36"}
-
-	@property
-	def furl(self):
-		return furl(self.url)
-
-	@property
-	def scheme(self):
-		return self.furl.scheme
 
 	@property
 	def host(self):
-		return self.furl.host
+		return furl(self.url).host
 
-	def get_resp(self):
-		try:
-			return requests.get(self.url,headers=self.headers)
-		except requests.exceptions.InvalidSchema:
-			print(self.url)
+	@property
+	def getsoup(self):
+		resp=requests.get(self.url)
+		soup=BeautifulSoup(resp.text,'lxml')
+		return soup
 
-	@property	
-	def soup(self):
-		return BeautifulSoup(self.get_resp().text,'lxml')
+	def analyzeurl(self):
+		'''链接分析'''
+		length=self.getfurl.path.segments
+		if length>3:
+			print 'url结构复杂:',self.url
+		return
 
-	def reduce_noise(self):
-		"""
-		#target:页面基础降噪
-		"""
-		newsoup=self.soup
+
+	def gethtml(self):
+		'''获取网页源码'''
+		return self.getsoup.prettify()
+
+	def gettext(self):
+		'''获取网页文本'''
+		newsoup=self.getsoup
 		for style in newsoup.find_all('style'):
 			newsoup.style.decompose()
 		for script in newsoup.find_all("script"):
 			newsoup.script.decompose()
-		return newsoup
+		return " ".join(newsoup.get_text().split())
 
-	
-	@property
-	def title(self):
-		"""
-		target:获取网页标题
-		"""
-		return self.soup.title.string
+	def checkinsearch(self):
+		'''检测是否被baidu/sogou/360/收录'''
+		pass
 
 	@property
-	def keywords(self):
-		"""
-		target:获取网关键词
-		"""
-		return self.soup.find_all('meta',attrs={'name':'keywords'})[0]['content'].split(',')
-
-	@property
-	def description(self):
-		"""
-		target:获取网页描述
-		"""
-		return self.soup.find_all('meta',attrs={'name':'description'})[0]['content']
-
-	@property
-	def content(self):
-		"""
-		target:获取页面内容 模仿百度抓取
-		params:soup
-		return:string conetent
-		"""
-		newsoup=self.reduce_noise()
-		content=newsoup.body.get_text().split()
-		return " ".join(content)
-
-	def url_re2abs(self,url):
-		"""相对连接->绝对连接"""
-		f=furl(url)
-		if f.host:
-			return url
+	def analyzetitle(self):
+		'''网页标题分析 标题范围30-120'''
+		title=self.getsoup.title.string
+		length=len(title)
+		if length>120:
+			return u'标题太长:'+title
+		elif length<10:
+			return u'标题太短:'+title
+		elif length==0:
+			return u'标题缺失:'
 		else:
-			me=self.furl
-			me.path=str(f.path)
-			return me.url
+			return u'页面标题:'+title
 
-	@property
-	def allurls(self):
-		"""
-		target:获取页面内的所有urls
-		"""
-		urls=[]
-		newsoup=self.reduce_noise()
-		for i in newsoup.find_all('a'):
-			if i.string:
-				anchor=i.string.strip()
-			else:
-				anchor=i.string
-			urls.append({'url':self.url_re2abs(i.get("href")),'anchor':anchor})
-		return urls
-
-	@property
-	def internal_urls(self):
-		"""
-		#target:获取页面内的站内链接和锚文字
-
-		"""
-		urls=[]
-		for url in self.allurls:
-			if furl(url['url']).host in [None,self.host]:
-				urls.append(url)
-			else:
-				pass
-		return urls
-
-	@property
-	def external_urls(self):
-		"""
-		#target:获取页面内的站外链接
-		"""
-		urls=[]
-		for url in self.allurls:
-			if furl(url['url']).host not in [None,self.host]:
-				urls.append(url)
-			else:
-				pass
-		return urls
-
-	def check_in_baidu(self):
-		"""
-		target:检查在baidu中是否收录
-		#收录返回True,没有收录返回False
-
-		"""
-		payload = {'wd': self.url}
-		req=requests.get("https://www.baidu.com/s",params=payload,headers=self.headers)
-		info=self.url[7:]
-		soup=BeautifulSoup(req.text,'lxml')
-		s=soup.body.get_text()
-		if "没有找到该URL。您可以直接访问" in s:
-			return False 
-		elif "很抱歉，没有找到" in s:
-			return False
+	def analyzeheadings(self):
+		''''H标签分析 H1有且只有一个'''
+		headings=['h1','h2','h3','h4','h5','h6']
+		info=[]
+		mess=[]
+		for heading in headings:
+			for h in self.getsoup.find_all(heading):
+				info.append({h.name:h.get_text()})
+				mess.append(h.name)
+		if mess.count('h1')!=1:
+			print 'H1 标签不唯一'
 		else:
-			return True
+			print '有且仅有一个H1'
+		return info
 
 
-	def check_in_so(self):
-		"""
-		target:检查在360中是否收录
 
-		"""
-		return None
+	def analyzeimages(self):
+		'''
+		每个图片都有自己的alt描述
+		没有alt描述的时候返回imgs
+		'''
+		imgs=[]
+		for img in self.getsoup.find_all('img'):
+			try:
+				if img['alt']:
+					pass
+			except KeyError as e:
+				imgs.append(img)
+				continue
+		return imgs
 
-	def check_in_sogou(self):
-		"""
-		target:检查在sogou中是否收录
+	@property
+	def links(self):
+		'''获取页面内所有超链 相对转换为绝对'''
+		links=[]
+		for a in self.getsoup.find_all('a',href=True):
+			f=furl(a['href'])
+			if f.host:
+				links.append({'url':a['href'],'text':a.get_text().strip()})
+			else:
+				links.append({'url':'http://'+self.host+a['href'],'text':a.get_text().strip()})
+		return links
 
-		"""
-		return None
+	@property
+	def internallinks(self):
+		'''获取内链以及超文本'''
+		ilinks=[]
+		for i in self.links:
+			try:
+				p=furl(i['url'])
+				if p.host==self.host:
+					ilinks.append(i['url'])
+				else:
+					pass
+			except ValueError as e:
+				continue
+		return list(set(ilinks))
 
-	def get_words(self):
-		"""
-		target:获取正文中频率出现最高的几个词
-		
-		"""
-		tags = jieba.analyse.extract_tags(self.get_content(), topK=20)
-		print(",".join(tags))
-		return None
+	def externallinks(self):
+		'''获取外链接以及超文本'''
+		exlinks=[]
+		for i in self.links:
+			try:
+				p=furl(i['url'])
+				if p.host==self.host:
+					pass
+				else:
+					exlinks.append(i['url'])
+			except ValueError as e:
+				continue
+		return exlinks
 
-	def show(self):
-		print("url:{}".format(self.get_url()))
-		print("title:{}".format(self.get_tdk()["title"]))
-		print("keywords:{}".format(self.get_tdk()["keywords"]))
-		print("description:{}".format(self.get_tdk()["description"]))
-		print("interlurl:{}".format(len(self.get_internal_urls())))
-		print("exterlurl:{}".format(len(self.get_external_urls())))
-		print(self.get_all_urls())
-		print(self.check_in_baidu())
-
-
+	def getreport(self):
+		'''分析报告'''
+		self.analyzeurl()
+		self.analyzetitle()
+		self.analyzeimages()
+		self.analyzeheadings()
+		pass
 
 def main():
-	url="http://www.vrnew.com/index.php/News/newscontent/id/611.html"
-	vrnew=htmlpage(url)
-	# for i in vrnew.get_all_urls():
-	# 	print(i['anchor'])
-	# 	print(i['url'])
-	# print(vrnew.host)
-	# print(vrnew.title)
-	# print(vrnew.content)
-	# print(vrnew.allurls)
-	print(vrnew.external_urls)
-
-
-
+	url="http://www.vrnew.com/"
+	vrnew=page(url)
+	print vrnew.internallinks
 
 
 if __name__ == '__main__':
